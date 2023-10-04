@@ -1,6 +1,6 @@
 {
   "name": "next-fire-auth",
-  "version": "0.0.1-beta.15",
+  "version": "0.0.1-beta.16",
   "description": "",
   "main": "dist/client/index.js",
   "module": "dist/client/index.mjs",
