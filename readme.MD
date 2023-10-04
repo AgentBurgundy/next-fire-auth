@@ -142,7 +142,7 @@ function Profile() {
 Or, you can access the user data in server side using `useServerUser` hook.
 
 ```jsx
-import useServerUser from "next-fire-auth";
+import useServerUser from "next-fire-auth/server";
 
 export async function getServerSideProps(context) {
   const { uid } = useServerUser();
