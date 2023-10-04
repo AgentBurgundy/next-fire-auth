@@ -1,45 +1,19 @@
-import React, {
-  ReactElement,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
+import React from "react";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { usePathname, useRouter } from "next/navigation";
+import { NextFireAuthContextType } from "@/types/NextFireAuthContextType";
+import { NextFireAuthConfig } from "@/types/NextFireAuthConfig";
+import { DefaultCookieManager } from "@/cookies/DefaultCookieManager";
+import { NextFireAuthContextProviderProps } from "@/types/NextFireAuthContextProviderProps";
+import { FirebaseApp } from "firebase/app";
+import firebase_app from "@/firebase/firebaseClient";
 
-import { auth } from "firebase/firebaseClient";
-import { BaseCookieManager } from "cookies/cookieManager";
-import { CookieManager } from "cookies/types/CookieManager";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-
-type NextFireAuthContextType = {
-  user: User | null;
-  setLoading: (value: any) => void;
-};
-
-type NextFireAuthContextProviderProps = {
-  children: any;
-  cookieManager?: CookieManager;
-  LoadingComponent?: JSX.Element;
-  onPathChange?: (
-    pathname: string,
-    user: User | null,
-    router: AppRouterInstance
-  ) => void;
-};
-
-const NextFireAuthContext = createContext<NextFireAuthContextType>({
-  user: null,
-  setLoading: (value) => {},
-});
-
-/**
- * Easy to use hook for accessing the Next Fire Auth Context
- * @returns {NextFireAuthContextType} user and setLoading
- */
-export const useAuthContext = (): NextFireAuthContextType =>
-  useContext(NextFireAuthContext);
+export const NextFireAuthContext = React.createContext<NextFireAuthContextType>(
+  {
+    user: null,
+    setLoading: (value) => {},
+  }
+);
 
 /**
  * Wrap your app with this provider to get access to the Next Fire Auth Context
@@ -50,34 +24,58 @@ export const useAuthContext = (): NextFireAuthContextType =>
  * @returns
  */
 export const NextFireAuthContextProvider = ({
-  LoadingComponent,
-  onPathChange = (pathname, user, router) => {
-    if (user) {
-      if (pathname?.startsWith("/sign-up") || pathname?.startsWith("/login")) {
-        router.push("/app/dashboard");
-      }
-    }
-
-    if (!user) {
-      if (pathname?.startsWith("/app")) {
-        router.push("/login");
-      } else if (pathname?.startsWith("/logout")) {
-        router.push("/login");
-      }
-    }
-  },
-  cookieManager = BaseCookieManager,
+  config,
   children,
 }: NextFireAuthContextProviderProps): React.ReactElement => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
+  let currentFirebaseApp: FirebaseApp;
+
+  if (!config?.firebaseApp) {
+    currentFirebaseApp = firebase_app;
+  } else {
+    currentFirebaseApp = config.firebaseApp;
+  }
+
+  const auth = getAuth(currentFirebaseApp);
+
+  const [user, setUser] = React.useState<User | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [initialized, setInitialized] = React.useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+  const defaultConfig: NextFireAuthConfig = {
+    onPathChange: (pathname, user, router) => {
+      if (user) {
+        if (
+          pathname?.startsWith("/sign-up") ||
+          pathname?.startsWith("/login")
+        ) {
+          router.push("/app/dashboard");
+        }
+      }
+
+      if (!user) {
+        if (pathname?.startsWith("/app")) {
+          router.push("/login");
+        } else if (pathname?.startsWith("/logout")) {
+          router.push("/login");
+        }
+      }
+    },
+    cookieManager: DefaultCookieManager,
+    loadingComponent: null,
+    firebaseApp: currentFirebaseApp,
+  };
+
+  let currentConfig = defaultConfig;
+  if (config) {
+    currentConfig = { ...defaultConfig, ...config };
+  }
+  const { onPathChange, loadingComponent, cookieManager } = currentConfig;
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       if (user) {
         setUser(user);
 
@@ -100,7 +98,7 @@ export const NextFireAuthContextProvider = ({
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!pathname || !initialized || !onPathChange) return;
 
     setLoading(true);
@@ -110,7 +108,7 @@ export const NextFireAuthContextProvider = ({
     setLoading(false);
   }, [user, pathname, initialized]);
 
-  if (LoadingComponent && loading) return <>{LoadingComponent}</>;
+  if (loadingComponent && loading) return <>{loadingComponent}</>;
 
   return (
     <NextFireAuthContext.Provider value={{ user, setLoading }}>
