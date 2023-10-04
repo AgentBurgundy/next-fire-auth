@@ -45,24 +45,7 @@ export const NextFireAuthContextProvider = ({
   const router = useRouter();
 
   const defaultConfig: NextFireAuthConfig = {
-    onPathChange: (pathname, user, router) => {
-      if (user) {
-        if (
-          pathname?.startsWith("/sign-up") ||
-          pathname?.startsWith("/login")
-        ) {
-          router.push("/app/dashboard");
-        }
-      }
-
-      if (!user) {
-        if (pathname?.startsWith("/app")) {
-          router.push("/login");
-        } else if (pathname?.startsWith("/logout")) {
-          router.push("/login");
-        }
-      }
-    },
+    onPathChange: (pathname, user, router) => {},
     cookieManager: DefaultCookieManager,
     loadingComponent: null,
     firebaseApp: currentFirebaseApp,

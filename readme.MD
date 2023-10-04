@@ -120,6 +120,37 @@ function MyApp({ Component, pageProps }) {
 }
 ```
 
+You may find yourself wanting to automatically send the user to a url when they match some routing conditions. See the below example for onPathChange
+
+```js
+// Example onPathChange method
+if (user) {
+  if (pathname?.startsWith("/sign-up") || pathname?.startsWith("/login")) {
+    router.push("/app/dashboard");
+  }
+}
+
+if (!user) {
+  if (pathname?.startsWith("/app")) {
+    router.push("/login");
+  } else if (pathname?.startsWith("/logout")) {
+    router.push("/login");
+  }
+}
+```
+
+Here's the default config values
+
+```js
+// Config default values
+{
+  onPathChange: (pathname, user, router) => {}, // Method that runs everytime the pathname changes
+  cookieManager: DefaultCookieManager,          // Built into next-fire-auth, uses js-cookie
+  loadingComponent: null,                       // Component to show when loading user info
+  firebaseApp: currentFirebaseApp,              // Creates a firebaseApp instance from env vars
+}
+```
+
 #### Access user data
 
 Then you can access the user data on client side using `useAuthContext` hook.
