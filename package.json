@@ -1,6 +1,6 @@
 {
   "name": "next-fire-auth",
-  "version": "0.0.1-beta.16",
+  "version": "0.0.1-beta.17",
   "description": "",
   "main": "dist/client/index.js",
   "module": "dist/client/index.mjs",
@@ -17,6 +17,14 @@
       "require": "./dist/server/index.js"
     }
   },
+  "keywords": [
+    "nextjs",
+    "firebase",
+    "authentication",
+    "auth",
+    "SSR",
+    "cookies"
+  ],
   "files": [
     "/dist"
   ],
