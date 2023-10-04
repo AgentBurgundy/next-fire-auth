@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/client/index.ts", "src/server/index.ts"],
+  entry: ["src/index.ts", "src/index.server.ts"],
   splitting: true, // Enables code splitting
   format: ["cjs", "esm"], // Or any output format you want
   outdir: "dist", // Output directory
