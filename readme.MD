@@ -15,170 +15,165 @@ To install next-fire-auth, run the following command:
 npm install next-fire-auth
 ```
 
-## How to Use
-
-First, import `NextFireAuthContextProvider` and wrap your layout.tsx with it. (This should be the topmost layout.tsx)
-
-```jsx
-import { NextFireAuthContextProvider } from "next-fire-auth";
-
-function MyApp({ Component, pageProps }) {
-  return (
-    <NextFireAuthContextProvider>
-      <Component {...pageProps} />
-    </NextFireAuthContextProvider>
-  );
-}
-```
-
-Or if you're using the old Pages Router, wrap around your app.
-
-```jsx
-import { NextFireAuthContextProvider } from "next-fire-auth";
-
-function MyApp({ Component, pageProps }) {
-  return (
-    <NextFireAuthContextProvider>
-      <Component {...pageProps} />
-    </NextFireAuthContextProvider>
-  );
-}
-```
-
-NOTE if not using a config (like below), you must have these firebase variables in your .env
+or with yarn
 
 ```sh
-# For Client
-NEXT_PUBLIC_FIREBASE_API_KEY="A..."
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="su..."
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="su..."
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="su..."
-NEXT_PUBLIC_FIREBASE_MESSENGER_ID="9..."
-NEXT_PUBLIC_FIREBASE_APP_ID="1:..."
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-..."
-
-# For Server (FirebaseAdmin)
-FIREBASE_CLIENT_EMAIL="firebase-..."
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----"
+yarn add next-fire-auth
 ```
 
-#### Configuration
+## How to Use
 
-You can customize the context provider by passing a configuration object. The options include an optional loading component, a custom cookie manager for server-side rendering, an optional function to run when the path changes, etc.
+1. Create a ClientProviders component to hold your client side context providers
 
-```jsx
+```tsx
+"use client";
+
 import { NextFireAuthContextProvider } from "next-fire-auth";
-import Loading from "./components/Loading";
 
-function MyApp({ Component, pageProps }) {
-  return (
-    <NextFireAuthContextProvider
-      config={{
-        loadingComponent: <Loading />,
-        cookieManager: myCustomCookieManager,
-        onPathChange: myCustomPathChangeFunction,
-      }}
-    >
-      <Component {...pageProps} />
-    </NextFireAuthContextProvider>
-  );
+export default function ClientProviders({ children }: any) {
+  return <NextFireAuthContextProvider>{children}</NextFireAuthContextProvider>;
 }
 ```
 
-or pass in your own firebaseApp you rolled yourself
+### NOTE
 
-```jsx
-import { NextFireAuthContextProvider } from "next-fire-auth";
-import Loading from "./components/Loading";
+If you pass no config like we do above, then next-fire-auth will auto try to build a firebase_app instance using these .env variables.
 
-const clientCredentials = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
+```sh
+# You can find these in your firebase console dashboard
 
-let firebase_app: FirebaseApp;
-firebase_app = initializeApp(clientCredentials);
+# Client side required props
+NEXT_PUBLIC_FIREBASE_API_KEY="..."
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
+NEXT_PUBLIC_FIREBASE_MESSENGER_ID="..."
+NEXT_PUBLIC_FIREBASE_APP_ID="..."
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="..."
 
-function MyApp({ Component, pageProps }) {
+# Server side required props (Firebase Admin)
+FIREBASE_CLIENT_EMAIL="..."
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY...
+```
+
+### Custom Config
+
+If you'd like to pass in a custom config you can do that like this
+
+```tsx
+"use client";
+
+import firebase_app from "@/lib/firebase/firebaseClient";
+import { BaseCookieManager, NextFireAuthContextProvider } from "next-fire-auth";
+
+export default function ClientProviders({ children }: any) {
   return (
     <NextFireAuthContextProvider
       config={{
         firebaseApp: firebase_app,
-        loadingComponent: <Loading />,
-        cookieManager: myCustomCookieManager,
-        onPathChange: myCustomPathChangeFunction,
+        loadingComponent: <span>test</span>,
+        cookieManager: BaseCookieManager,
+        onPathChange: (pathname: any, user: any, router: any) => {
+          // This can do whatever you want, this is just an example where
+          // we route to specific pages based on auth status and current url.
+
+          if (user && pathname === "/login") {
+            router.replace("/app/dashboard");
+            router.refresh();
+          }
+
+          if (!user && pathname.startsWith("/app")) {
+            router.replace("/login");
+            router.refresh();
+          }
+
+          console.log(pathname);
+        },
       }}
     >
-      <Component {...pageProps} />
+      {children}
     </NextFireAuthContextProvider>
   );
 }
 ```
 
-You may find yourself wanting to automatically send the user to a url when they match some routing conditions. See the below example for onPathChange
+### NOTE
 
-```js
-// Example onPathChange method
-if (user) {
-  if (pathname?.startsWith("/sign-up") || pathname?.startsWith("/login")) {
-    router.push("/app/dashboard");
-  }
-}
+If you're going to redirect like I am in onPathChange, I recommend using `replace() + refresh()` instead of `push`. For some reason push still caches the old cookie value.
 
-if (!user) {
-  if (pathname?.startsWith("/app")) {
-    router.push("/login");
-  } else if (pathname?.startsWith("/logout")) {
-    router.push("/login");
-  }
-}
-```
+### Why Client Providers file?
 
-Here's the default config values
+You could totally wrap your main layout.tsx with this context, but that would require adding `"use client"` to your main layout. Forcing everything to CSR.
 
-```js
-// Config default values
-{
-  onPathChange: (pathname, user, router) => {}, // Method that runs everytime the pathname changes
-  cookieManager: DefaultCookieManager,          // Built into next-fire-auth, uses js-cookie
-  loadingComponent: null,                       // Component to show when loading user info
-  firebaseApp: currentFirebaseApp,              // Creates a firebaseApp instance from env vars
-}
-```
+If you'd like to take advantage of SSR you should split this out into a separate client providers component and then wrap your main layout in `<ClientProviders>`
 
-#### Access user data
+2. Wrap your layout
 
-Then you can access the user data on client side using `useAuthContext` hook.
+```tsx
+import ClientProviders from "./client-providers";
 
-```jsx
-import { useAuthContext } from "next-fire-auth";
+export const metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
 
-function Profile() {
-  const { user } = useAuthContext(); // User is of type Firebase.User
-
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <h1>Hello, {user.displayName}</h1>
-      <p>Email: {user.email}</p>
-    </div>
+    <html lang="en">
+      <body>
+        <ClientProviders>{children}</ClientProviders>
+      </body>
+    </html>
   );
 }
 ```
 
-Or, you can access the user data in server side using `useServerUser` hook.
+3. Access your user data client side
 
-```jsx
-import useServerUser from "next-fire-auth/server";
+```tsx
+"use client";
+import { useAuthContext } from "next-fire-auth";
 
-export async function getServerSideProps(context) {
-  const { uid } = useServerUser();
-  // do something with uid
+export default function TestClientComponent() {
+  const { user } = useAuthContext();
+
+  if (!user) {
+    return <span>No user</span>;
+  }
+
+  return <div>Hello {user.uid}</div>;
 }
+```
+
+4. Access your uid server side
+
+```tsx
+import { useServerUser } from "next-fire-auth/server";
+
+export default function TestServerComponent() {
+  const { uid } = useServerUser();
+
+  if (!uid || !uid.value) {
+    return <span>No UID</span>;
+  }
+
+  return <div>Hello {uid.value}</div>;
+}
+```
+
+Here is the full default config
+
+```tsx
+const defaultConfig: NextFireAuthConfig = {
+  onPathChange: (pathname, user, router) => {},
+  cookieManager: DefaultCookieManager,
+  loadingComponent: null,
+  firebaseApp: currentFirebaseApp,
+};
 ```
 
 ## Contributing
