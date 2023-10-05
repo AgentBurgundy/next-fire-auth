@@ -59,6 +59,8 @@ export const NextFireAuthContextProvider = ({
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+      setLoading(true);
+
       if (user) {
         setUser(user);
 
@@ -76,6 +78,7 @@ export const NextFireAuthContextProvider = ({
       }
 
       setInitialized(true);
+      setLoading(false);
     });
 
     return () => unsubscribe();
