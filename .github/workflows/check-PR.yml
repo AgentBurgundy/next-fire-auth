@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: "Build"
+    name: "Build & Check for Changeset"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,12 +19,5 @@ jobs:
           node-version: 16
       - run: npm install
       - run: npm run build
-
-  changeset:
-    name: "Check for Changeset"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
       - name: Check for Changeset
         run: yarn changeset status --since=main
