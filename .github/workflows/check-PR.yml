@@ -4,12 +4,13 @@
 name: Node.js Package
 
 on:
-  release:
-    types: [created]
-  workflow_dispatch:
+  pull-request:
+    branches:
+      - main
 
 jobs:
   build:
+    name: "Build"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,15 +20,11 @@ jobs:
       - run: npm install
       - run: npm run build
 
-  publish-npm:
-    needs: build
+  changeset:
+    name: "Check for Changeset"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-      - run: npm run deploy
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Check for Changeset
+        run: yarn changeset status --since=main
