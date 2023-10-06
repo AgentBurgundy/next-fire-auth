@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Check for Changeset
+        run: yarn changeset status --since=main
+
+      - name: Create Release PR and Publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.npm_token }}
+
+    #   - name: Send a Slack notification if a publish happens
+    #     if: steps.changesets.outputs.published == 'true'
+    #     # You can do something when a publish happens.
+    #     run: my-slack-bot send-notification --message "A new version of ${GITHUB_REPOSITORY} was published!"
