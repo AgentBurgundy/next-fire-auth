@@ -4,7 +4,7 @@ import { User } from "firebase/auth";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export type NextFireAuthConfig = {
-  firebaseApp: FirebaseApp | null;
+  firebaseApp?: FirebaseApp | null;
   cookieManager?: CookieManager;
   onPathChange?: (
     pathname: string,

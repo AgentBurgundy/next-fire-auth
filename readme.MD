@@ -15,10 +15,20 @@ To install next-fire-auth, run the following command:
 npm install next-fire-auth
 ```
 
-or with yarn
+or with yarn.
 
 ```sh
 yarn add next-fire-auth
+```
+
+If you do not have Firebase installed in your project, you'll need it.
+
+```sh
+npm install firebase firebase-admin
+```
+
+```sh
+yarn add firebase firebase-admin
 ```
 
 ## How to Use
@@ -26,6 +36,7 @@ yarn add next-fire-auth
 1. Create a ClientProviders component to hold your client side context providers
 
 ```tsx
+// ClientProviders.tsx
 "use client";
 
 import { NextFireAuthContextProvider } from "next-fire-auth";
@@ -63,15 +74,14 @@ If you'd like to pass in a custom config you can do that like this
 ```tsx
 "use client";
 
-import firebase_app from "@/lib/firebase/firebaseClient";
 import { BaseCookieManager, NextFireAuthContextProvider } from "next-fire-auth";
 
 export default function ClientProviders({ children }: any) {
   return (
     <NextFireAuthContextProvider
       config={{
-        firebaseApp: firebase_app,
-        loadingComponent: <span>test</span>,
+        firebaseApp: firebase_app, // Instead of relying on env vars, you can role your own FirebaseApp object and pass it in. This is optional
+        loadingComponent: <span>Loading...</span>,
         cookieManager: BaseCookieManager,
         onPathChange: (pathname: any, user: any, router: any) => {
           // This can do whatever you want, this is just an example where

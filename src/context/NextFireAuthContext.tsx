@@ -57,6 +57,12 @@ export const NextFireAuthContextProvider = ({
   }
   const { onPathChange, loadingComponent, cookieManager } = currentConfig;
 
+  if (!currentConfig.firebaseApp && !firebase_app) {
+    throw new Error(
+      "No firebase app provided. Please provide a firebase app in the config or initialize firebase in your app"
+    );
+  }
+
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       setLoading(true);

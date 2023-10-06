@@ -1,6 +1,6 @@
 {
   "name": "next-fire-auth",
-  "version": "0.0.1-beta.25",
+  "version": "0.0.1-beta.26",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -29,7 +29,8 @@
     "/dist"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "deploy": "tsup && npm publish"
   },
   "author": "Ronald Barnhart",
   "license": "MIT",
