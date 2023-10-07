@@ -29,8 +29,7 @@
     "/dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "deploy": "tsup && npm publish"
+    "build": "tsup"
   },
   "author": "Ronald Barnhart",
   "license": "MIT",
