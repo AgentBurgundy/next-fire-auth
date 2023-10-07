@@ -7,6 +7,12 @@
 
 - ⚙️ **Configurable** - I know not everyone likes to write auth the same way, so I've tried my best (and will continue improving) the flexibility of this package so we can accommodate more solutions.
 
+This is meant to be used alongside the traditional firebase sdk. You'll still want to roll your own Firebase App object if you plan to use FirebaseStorage, Firestore, or any other Firebase service.
+
+You'll need to import sign in methods and other Firebase auth utilites as you normally would when using Firebase. [Firebase Auth Documentation](https://firebase.google.com/docs/auth/web/start)
+
+What this library does is provide a React context that listens to auth state and works seamlessly with retrieving user info on Client and Server components.
+
 ## Installation
 
 To install next-fire-auth, run the following command:
