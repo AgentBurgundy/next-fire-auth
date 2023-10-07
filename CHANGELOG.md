@@ -1,5 +1,12 @@
 # next-fire-auth
 
+## 0.0.5
+
+### Patch Changes
+
+- 5b61fb5: forgot to update publish script
+- 4acc8ba: Now for sure fixed CI
+
 ## 0.0.4
 
 ### Patch Changes
