@@ -23,17 +23,14 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Check for Changeset
-        run: yarn changeset status --since=main
-
       - name: Create Release PR and Publish to NPM
         id: changesets
         uses: changesets/action@v1
         with:
           publish: yarn deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.npm_token }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     #   - name: Send a Slack notification if a publish happens
     #     if: steps.changesets.outputs.published == 'true'

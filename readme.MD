@@ -48,7 +48,7 @@ export default function ClientProviders({ children }: any) {
 
 ### NOTE
 
-If you pass no config like we do above, then next-fire-auth will auto try to build a firebase_app instance using these .env variables.
+If you choose to not pass a config like we do above, then next-fire-auth will auto try to build a firebase_app instance using these .env variables.
 
 ```sh
 # You can find these in your firebase console dashboard
