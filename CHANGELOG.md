@@ -1,5 +1,11 @@
 # next-fire-auth
 
+## 0.0.4
+
+### Patch Changes
+
+- e93dd7f: fixing ci again
+
 ## 0.0.3
 
 ### Patch Changes
