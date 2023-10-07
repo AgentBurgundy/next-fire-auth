@@ -29,7 +29,8 @@
     "/dist"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "deploy": "tsup && yarn changeset publish"
   },
   "author": "Ronald Barnhart",
   "license": "MIT",
