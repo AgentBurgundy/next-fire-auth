@@ -28,7 +28,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: yarn build
+          publish: yarn deploy
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
