@@ -1,5 +1,11 @@
 # next-fire-auth
 
+## 0.0.6
+
+### Patch Changes
+
+- 1069b7e: exporting firebase_app now from client side
+
 ## 0.0.5
 
 ### Patch Changes
