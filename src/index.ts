@@ -5,6 +5,7 @@ import { useAuthContext } from "@/hooks/client/useAuthContext";
 import { NextFireAuthConfig } from "@/types/NextFireAuthConfig";
 import { NextFireAuthContextProviderProps } from "@/types/NextFireAuthContextProviderProps";
 import { NextFireAuthContextType } from "@/types/NextFireAuthContextType";
+import firebase_app from "./firebase/firebaseClient";
 
 export {
   NextFireAuthContextProvider,
@@ -14,4 +15,5 @@ export {
   NextFireAuthConfig,
   NextFireAuthContextProviderProps,
   NextFireAuthContextType,
+  firebase_app,
 };
